@@ -1,0 +1,14 @@
+typedef struct{
+	pid_t pid;
+	char **cmds;
+}Program;
+
+program*	create_program();
+void			free_program(Program*);
+void			exec_program(Program*);
+void			remove_blanks(char **str);
+
+int main(int argc, char **argv)
+{
+	
+}
