@@ -15,7 +15,7 @@
 #define	NULL	0
 #endif
 
-static char commandInput = '\0'
+static char commandInput = '\0';
 static int	buf_chars = 0;
 static char	*pathv[MAX_PATHS];
 static char commandLine[LINE_LEN];

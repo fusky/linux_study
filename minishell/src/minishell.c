@@ -3,7 +3,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <wait.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include "minishell.h"
 
 struct command_t command;
@@ -84,12 +86,12 @@ int excuteCommand()
 			}else if(WIFSIGNALED(status)){
 				printf("killed by signal %d\n", WTERMSIG(status));
 			}else if(WIFSTOPPED(status)){
-				printf("stopped by signal %d\n", WSTIOPSIG(status));
+				printf("stopped by signal %d\n", WSTOPSIG(status));
 			}else if(WIFCONTINUED(status)){
 				printf("continued\n");
 			}
 		}while(!WIFEXITED(status) && !WIFSIGNALED(status));
-
+	}
 	return 0;
 }
 
@@ -144,7 +146,7 @@ int processFileOutCommand(int i)
 	}
 	argv[j] = NULL;
 	commandName = lookupPath(argv, pathv);
-	return executeFileOutCommand(commandName, argc, command.argv[i+1]);
+	return executeFileOutCommand(commandName, argv, command.argv[i+1]);
 }
 
 int processFileInCommand(int i)
@@ -166,7 +168,7 @@ int processFileInCommand(int i)
 			perror("fork");
 			break;
 		case 0:
-			execteFileInCommand(comandName, argv, command.argv[i+1]);
+			executeFileInCommand(commandName, argv, command.argv[i+1]);
 			break;
 		default:
 			pid = wait(&status);
@@ -188,7 +190,7 @@ int processCommand()
 		}else if(strcmp(command.argv[i],"<") == 0){
 			return processFileInCommand(i);
 		}else if(strcmp(command.argv[i], "|") == 0){
-			return processPipecommand(i);
+			return processPipedCommand(i);
 		}
 	}
 
@@ -230,7 +232,7 @@ int main(int argc, char **argv)
 	}
 
 	printf("\n");
-	exit(EXIT_SUCCESS);
+	return 0;
 }
 
 
